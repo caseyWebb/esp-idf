@@ -39,9 +39,11 @@ static uint32_t get_flash_clock_divider(const spi_flash_hal_config_t *cfg)
     } else
 #endif
     {
-        best_div = (int)ceil((double)clk_source / (double)cfg->freq_mhz);
+        // ceil(x / y) == (x + y - 1) / y for +ve ints
+        best_div = (clk_source + cfg->freq_mhz - 1) / cfg->freq_mhz;
         if ((cfg->clock_src_freq % cfg->freq_mhz) != 0) {
-            HAL_LOGW(TAG, "Flash clock frequency round down to %d", (int)floor((double)clk_source / (double)best_div));
+            // floor(x / y) == (x - 1) / y for +ve ints
+            HAL_LOGW(TAG, "Flash clock frequency round down to %d", (clk_source - 1) / best_div);
         }
     }
 

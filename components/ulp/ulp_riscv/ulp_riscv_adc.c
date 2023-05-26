@@ -35,9 +35,15 @@ esp_err_t ulp_riscv_adc_init(const ulp_riscv_adc_cfg_t *cfg)
         .bitwidth = cfg->width,
         .atten = cfg->atten,
     };
-    ESP_ERROR_CHECK(adc_oneshot_config_channel(adc1_handle, cfg->channel, &config));
+    for (int i = 0; i < 9; i++)
+    {
+        if ((cfg->channel_mask & 1 << i) != 0)
+        {
+            ESP_ERROR_CHECK(adc_oneshot_config_channel(adc1_handle, (adc_channel_t)i, &config));
+        }
+    }
 
-    //Calibrate the ADC
+    // Calibrate the ADC
     adc_set_hw_calibration_code(cfg->adc_n, cfg->atten);
     esp_sleep_enable_adc_tsens_monitor(true);
 
